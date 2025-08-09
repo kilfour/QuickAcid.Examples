@@ -1,6 +1,4 @@
-﻿using QuickMGenerate;
-using QuickAcid.Bolts.Nuts;
-using QuickAcid.Bolts;
+﻿using QuickFuzzr;
 
 namespace QuickAcid.Examples.Old.Linqy
 {
@@ -19,12 +17,12 @@ namespace QuickAcid.Examples.Old.Linqy
 		public void BugHouse1Error()
 		{
 			var script =
-				from a in "a".Input(MGen.Int(0, 10))
+				from a in "a".Input(Fuzz.Int(0, 10))
 				from bughouse in "bughouse".Tracked(() => new BugHouse1())
 				from output in "bughouse.Run".Act(() => bughouse.Run(a))
 				from spec in "returns true".Spec(() => output)
 				select Acid.Test;
-			100.Times(() => new QState(script).Testify(100));
+			QState.Run(script).With(100.Runs()).And(100.ExecutionsPerRun());
 		}
 
 		public class BugHouse2
@@ -41,14 +39,12 @@ namespace QuickAcid.Examples.Old.Linqy
 		public void BugHouse2Error()
 		{
 			var script =
-				from a in "a".Input(MGen.Int(0, 10))
+				from a in "a".Input(Fuzz.Int(0, 10))
 				from bughouse in "bughouse".Tracked(() => new BugHouse2())
 				from output in "bughouse.Run".Act(() => bughouse.Run(a))
 				from spec in "returns true".Spec(() => output)
 				select Acid.Test;
-			var report = new QState(script).Observe(50);
-			if (report != null)
-				Assert.Fail(report.ToString());
+			QState.Run(script).WithOneRun().And(50.ExecutionsPerRun());
 		}
 
 		public class BugHouse3
@@ -66,12 +62,12 @@ namespace QuickAcid.Examples.Old.Linqy
 		public void BugHouse3Error()
 		{
 			var script =
-				from a in "a".Input(MGen.Int(0, 10))
+				from a in "a".Input(Fuzz.Int(0, 10))
 				from bughouse in "bughouse".Tracked(() => new BugHouse3())
 				from output in "bughouse.Run".Act(() => bughouse.Run(a))
 				from spec in "returns true".Spec(() => output)
 				select Acid.Test;
-			100.Times(() => new QState(script).Testify(100));
+			QState.Run(script).With(100.Runs()).And(100.ExecutionsPerRun());
 		}
 	}
 }

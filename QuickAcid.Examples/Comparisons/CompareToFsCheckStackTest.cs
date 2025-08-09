@@ -1,9 +1,7 @@
 using FsCheck;
 using FsCheck.Fluent;
 using FsCheck.Xunit;
-using QuickMGenerate;
-using QuickAcid.Bolts.Nuts;
-using QuickAcid.Bolts;
+using QuickFuzzr;
 
 namespace QuickAcid.Examples;
 
@@ -65,7 +63,7 @@ public class StackAcidSpec
             from pushed in "pushed".Tracked(() => new List<int>())
             from expectedPops in "expectedPops".Tracked(() => new List<int>())
             from popped in "popped".Tracked(() => new List<int>())
-            from val in "pushval".Input(MGen.Int(0, 100))
+            from val in "pushval".Input(Fuzz.Int(0, 100))
             from action in "step".Choose(
                 "push".Act(() => { stack.Push(val); pushed.Add(val); }),
                 "pop".ActIf(
@@ -76,6 +74,6 @@ public class StackAcidSpec
             from popsInReverse in "PopsInReverse".Spec(
                 () => popped.SequenceEqual(expectedPops))
             select Acid.Test;
-        10.Times(() => new QState(script).Testify(20));
+        QState.Run(script).With(10.Runs()).And(20.ExecutionsPerRun());
     }
 }

@@ -3,7 +3,7 @@ namespace QuickAcid.Examples.BroadcasterExample.SimpleModel;
 
 public class Broadcaster
 {
-    private readonly Lock theDoor = new();
+    private readonly object theDoor = new();
     private List<IClientProxy> clients;
     private readonly IClientProxyFactory clientProxyFactory;
 

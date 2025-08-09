@@ -1,8 +1,6 @@
 using System.Reflection;
-using QuickAcid.Bolts;
-using QuickAcid.Bolts.Nuts;
 using QuickAcid.Examples.BroadcasterExample.SimpleModel;
-using QuickMGenerate;
+using QuickFuzzr;
 
 namespace QuickAcid.Examples.BroadcasterExample;
 
@@ -21,7 +19,7 @@ public partial class LinqyTest
                 from _a1 in "Register Client".Act(broadcaster.Register)
                 from _s1 in "Client Exists In Collection".Spec(() => GetBroadcastersClients(broadcaster).Contains(clientProxyFactory.CreatedClients.Last()))
                 select Acid.Test,
-                from faultyClient in "Faulty Client".Derived(MGen.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
+                from faultyClient in "Faulty Client".Derived(Fuzz.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
                 from _a2 in "Registered Client Faults".ActIf(() => faultyClient != null, () => ((TestClientProxy)faultyClient).Fault())
                 from _s2 in "Client Is Removed From Collection".Spec(() => !GetBroadcastersClients(broadcaster).Contains(faultyClient))
                 select Acid.Test,
@@ -34,7 +32,7 @@ public partial class LinqyTest
             )
             select Acid.Test;
 
-        10.Times(() => new QState(script).Testify(50));
+        QState.Run(script).With(10.Runs()).And(50.ExecutionsPerRun());
     }
 
     private static List<IClientProxy> GetBroadcastersClients(Broadcaster caster)
