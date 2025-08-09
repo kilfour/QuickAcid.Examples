@@ -1,4 +1,4 @@
-namespace QuickAcid.Examples.BroadcasterExample.SimpleModel;
+namespace QuickAcid.Examples.ZheBroadcasterExample.SimpleModel;
 
 public interface IClientProxy
 {

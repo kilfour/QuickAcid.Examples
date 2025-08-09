@@ -1,0 +1,22 @@
+ ──────────────────────────────────────────────────
+ Original failing run:    21 executions
+ Minimal failing case:    6 executions (after 27 shrinks)
+ Seed:                    1718881614
+ ──────────────────────────────────────────────────
+  Executed (16): Register Client
+ ──────────────────────────────────────────────────
+  Executed (17): Broadcast
+ ──────────────────────────────────────────────────
+  Executed (18): Register Client
+ ──────────────────────────────────────────────────
+  Executed (20): Stop Broadcasting
+ ══════════════════════════════════════
+  ❌ Spec Failed: Stop Does Not Throw
+ ══════════════════════════════════════
+ Passed Specs
+  - Stop Does Not Throw: 4x
+  - Client Exists In Collection: 8x
+  - Start Does Not Throw: 4x
+  - Client Is Removed From Collection: 4x
+ ──────────────────────────────────────────────────
+

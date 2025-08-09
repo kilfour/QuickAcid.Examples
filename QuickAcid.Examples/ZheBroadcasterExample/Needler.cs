@@ -1,4 +1,4 @@
-namespace QuickAcid.Examples.BroadcasterExample;
+namespace QuickAcid.Examples.ZheBroadcasterExample;
 
 
 public class Needler
