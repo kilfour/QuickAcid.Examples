@@ -1,0 +1,18 @@
+ ──────────────────────────────────────────────────
+ Original failing run:    99 executions
+ Minimal failing case:    4 executions (after 103 shrinks)
+ Seed:                    1127921454
+ ──────────────────────────────────────────────────
+  Executed (95): BugHouse.RunInt
+ ──────────────────────────────────────────────────
+  Executed : BugHouse.RunString (2 Times)
+ ──────────────────────────────────────────────────
+  Executed (98): BugHouse.RunInt
+   - Input: int = 6
+ ═══════════════════════════════════════════════
+  ❌ Spec Failed: BugHouse.RunInt returns true
+ ═══════════════════════════════════════════════
+ Passed Specs
+  - BugHouse.RunString returns true: 45x
+  - BugHouse.RunInt returns true: 53x
+ ──────────────────────────────────────────────────

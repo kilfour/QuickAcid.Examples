@@ -1,0 +1,14 @@
+ ──────────────────────────────────────────────────
+ Original failing run:    22 executions
+ Minimal failing case:    3 executions (after 25 shrinks)
+ Seed:                    291715583
+ ──────────────────────────────────────────────────
+  Executed : BugHouse.Run (3 Times)
+   - Input: a = 6
+ ══════════════════════════════════════════════════════════════════
+  ❌ Spec Failed: Third Times the Harm: BugHouse.Run returns true
+ ══════════════════════════════════════════════════════════════════
+ Passed Specs
+  - Third Times the Harm: BugHouse.Run returns true: 21x
+ ──────────────────────────────────────────────────
+

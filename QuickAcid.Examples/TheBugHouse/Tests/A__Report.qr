@@ -1,0 +1,15 @@
+ ──────────────────────────────────────────────────
+ Original failing run:    3 executions
+ Minimal failing case:    3 executions (after 6 shrinks)
+ Seed:                    1347683198
+ ──────────────────────────────────────────────────
+  Executed : BugHouse.Run (2 Times)
+ ──────────────────────────────────────────────────
+  Executed (2): BugHouse.Run
+   - Input: a = 1
+ ════════════════════════════════════════════════════════════════
+  ❌ Spec Failed: Delayed Detonation: BugHouse.Run returns true
+ ════════════════════════════════════════════════════════════════
+ Passed Specs
+  - Delayed Detonation: BugHouse.Run returns true: 2x
+ ──────────────────────────────────────────────────

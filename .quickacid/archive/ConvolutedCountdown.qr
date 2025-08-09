@@ -1,0 +1,16 @@
+ ──────────────────────────────────────────────────
+ Original failing run:    36 executions
+ Minimal failing case:    4 executions (after 40 shrinks)
+ Seed:                    1221987654
+ ──────────────────────────────────────────────────
+  Executed : BugHouse.Run (3 Times)
+   - Input: a = 6
+ ──────────────────────────────────────────────────
+  Executed (35): BugHouse.Run
+ ══════════════════════════════════════════════════════════════════
+  ❌ Spec Failed: Convoluted Countdown: BugHouse.Run returns true
+ ══════════════════════════════════════════════════════════════════
+ Passed Specs
+  - Convoluted Countdown: BugHouse.Run returns true: 35x
+ ──────────────────────────────────────────────────
+
