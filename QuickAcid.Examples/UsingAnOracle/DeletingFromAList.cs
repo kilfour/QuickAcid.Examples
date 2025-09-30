@@ -62,11 +62,11 @@ public class DeletingFromAList
 			from list in "List".Input(listGenerator)
 			from toRemove in "Element to remove".Input(Fuzz.Int(0, 10))
 			from output in "ListDeleter.DoingMyThing".Act(() => sut.DoingMyThing(list, toRemove))
-			from expected in "Oracle".Derived(() => list.Where(x => x != toRemove).ToList())
+			from expected in Script.Execute(() => list.Where(x => x != toRemove).ToList())
 			from spec1 in "Removes all occurrences".Spec(() => !output.Contains(toRemove))
 			from spec2 in "Does not over-delete".Spec(() => output.Count == list.Count(x => x != toRemove))
 			from spec3 in "Preserves order of survivors".Spec(() => output.SequenceEqual(expected))
-			from twice in "Apply twice".Derived(() => new ListDeleter().DoingMyThing(output, toRemove))
+			from twice in Script.Execute(() => new ListDeleter().DoingMyThing(output, toRemove))
 			from specIdem in "Idempotent delete".Spec(() => twice.SequenceEqual(output))
 			select Acid.Test;
 	}

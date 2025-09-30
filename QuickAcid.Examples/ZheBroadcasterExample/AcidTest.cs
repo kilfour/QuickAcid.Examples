@@ -67,7 +67,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
             from factory in "ClientProxyFactory".Stashed(() => new TestClientProxyFactory())
             from broadcaster in "Broadcaster".Stashed(() => new Broadcaster(factory))
             from needler in "Needler".Stashed(() => new Needler())
-            from _ in "ops".Choose(
+            from _ in Script.Choose(
 
                 // 1) Register
                 from _a in "Register Client".Act(broadcaster.Register)
@@ -76,7 +76,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
                 select Acid.Test,
 
                 // 2) Remove on fault
-                from faulty in "Faulty Client".Derived(
+                from faulty in Script.Execute(
                     Fuzz.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
                 from _b in "Registered Client Faults".ActIf(() => faulty != null,
                     () => ((TestClientProxy)faulty!).Fault())

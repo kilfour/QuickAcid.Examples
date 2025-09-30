@@ -64,7 +64,7 @@ public class StackAcidSpec
             from expectedPops in "expectedPops".Tracked(() => new List<int>())
             from popped in "popped".Tracked(() => new List<int>())
             from val in "pushval".Input(Fuzz.Int(0, 100))
-            from action in "step".Choose(
+            from action in Script.Choose(
                 "push".Act(() => { stack.Push(val); pushed.Add(val); }),
                 "pop".ActIf(
                     () => stack.Count > 0,

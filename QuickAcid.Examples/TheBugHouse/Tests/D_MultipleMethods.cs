@@ -53,7 +53,7 @@ RunInt(6)            // bug ends with ""1221"" and `a == 6` → fail
 		var script =
 			from bughouse in "BugHouse".Stashed(() => new BugHouse())
 			from funcOne in
-				"Choose".Choose(
+				Script.Choose(
 					from i in "int".Input(Fuzz.Int(0, 10))
 					from runInt in "BugHouse.RunInt".Act(() => bughouse.RunInt(i))
 					from specOne in "BugHouse.RunInt returns true".Spec(() => runInt)
