@@ -1,5 +1,6 @@
 ﻿using QuickFuzzr;
 using QuickPulse.Explains;
+using StringExtensionCombinators;
 
 namespace QuickAcid.Examples.TheBugHouse.Tests;
 
@@ -8,14 +9,14 @@ namespace QuickAcid.Examples.TheBugHouse.Tests;
 "specific inputs increment the counter in " +
 "different ways, requiring a particular " +
 "input dance to trigger the failure.")]
-[DocCodeExample(typeof(BugHouse), nameof(BugHouse.Run))]
+[DocExample(typeof(BugHouse), nameof(BugHouse.Run))]
 public class C_ConvolutedCountdown
 {
 	public class BugHouse
 	{
 		private int count;
 
-		[DocExample]
+		[CodeSnippet]
 		public bool Run(int a)
 		{
 			if (a == 6 && count != 3) count++;

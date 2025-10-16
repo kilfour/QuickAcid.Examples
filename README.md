@@ -1,5 +1,5 @@
 # QuickAcid.Examples
-> Zen and the Art of Code Maintenance.
+> Zen and the Art of Code Maintenance.  
 ## Introduction
 **QuickAcid.Examples** is a curated collection of property-based tests designed to show QuickAcid in action.  
 Each example breaks something on purpose, sometimes in obvious ways,
@@ -7,14 +7,14 @@ sometimes in subtle, stateful, or downright mischievous ones,
 so you can see how failures are found, minimized, and explained. 
 
 
-Think of it as a workshop manual for QuickAcid: part demonstration, part exploration, part philosophy of testing.
+Think of it as a workshop manual for QuickAcid: part demonstration, part exploration, part philosophy of testing.  
 ## Bughousing
 Bughousing is a set of intentionally fragile programs, each with its own peculiar way of failing.  
 They range from simple state-based traps to intricate multi-method booby traps,
-all designed to show how QuickAcid can uncover, shrink, and explain subtle bugs.
+all designed to show how QuickAcid can uncover, shrink, and explain subtle bugs.  
 ### Delayed Detonation
 Throws only after exactly three total runs when the input value is 1.  
-Demonstrates a simple stateful failure triggered by run count.
+Demonstrates a simple stateful failure triggered by run count.  
 ```csharp
 return !(count++ == 2 && a == 1);
 ```
@@ -26,7 +26,7 @@ count = 0
 Run( a = <any> ) // count = 1
 Run( a = <any> ) // count = 2
 Run( a = 1 ) // count == 2 && a == 1 → fail
-```
+```  
 #### Reports:
 ```
 ──────────────────────────────────────────────────
@@ -47,7 +47,7 @@ Run( a = 1 ) // count == 2 && a == 1 → fail
 ```
 ### Third Times the Harm
 Throws as soon as the value 6 has been seen three times.  
-A straightforward counter-based failure condition.
+A straightforward counter-based failure condition.  
 ```csharp
 if (a == 6) count++;
 return !(count == 3);
@@ -60,7 +60,7 @@ count = 0
 Run( a = 6 ) // count = 1
 Run( a = 6 ) // count = 2
 Run( a = 6 ) // count == 3 → fail
-```
+```  
 #### Reports:
 ```
 ──────────────────────────────────────────────────
@@ -78,7 +78,7 @@ Run( a = 6 ) // count == 3 → fail
  ──────────────────────────────────────────────────
 ```
 ### Convoluted Countdown
-Fails after a more complex sequence: specific inputs increment the counter in different ways, requiring a particular input dance to trigger the failure.
+Fails after a more complex sequence: specific inputs increment the counter in different ways, requiring a particular input dance to trigger the failure.  
 ```csharp
 if (a == 6 && count != 3) count++;
 if (count >= 3) count++;
@@ -93,7 +93,7 @@ Run( a = 6 ) // +1 → 1
 Run( a = 6 ) // +1 → 2
 Run( a = 6 ) // +1 → 3, then >=3 → +1 → 4
 Run( a != 6 ) // skip first inc, >=3 → +1 → 5 → fail
-```
+```  
 #### Reports:
 ```
 ──────────────────────────────────────────────────
@@ -113,14 +113,14 @@ Run( a != 6 ) // skip first inc, >=3 → +1 → 5 → fail
  ──────────────────────────────────────────────────
 ```
 ### Multiple Methods
-Exception occurs only from a specific interleaving of RunInt and RunString calls, each appending different markers to state. Demonstrates multi-method state interaction.  
-**RunInt:**
+Exception occurs only from a specific interleaving of RunInt and RunString calls, each appending different markers to state. Demonstrates multi-method state interaction.    
+**RunInt:**  
 ```csharp
 bug += "1";
 if (bug.EndsWith("1221") && a == 6) return false;
 return true;
 ```
-**RunString:**
+**RunString:**  
 ```csharp
 bug += "2";
 if (bug.EndsWith("122") && a == "p") return false;
@@ -134,7 +134,7 @@ RunInt(<any>)        // bug = "1"
 RunString(<any>)     // bug = "12"
 RunString(<any>)     // bug = "122"
 RunInt(6)            // bug ends with "1221" and `a == 6` → fail
-```
+```  
 #### Reports:
 ```
 ──────────────────────────────────────────────────
@@ -161,12 +161,12 @@ When `Remove` only removes the first occurrence.
 
 This example demonstrates how a property-based test can expose a subtle bug in list deletion logic:
 `List<T>.Remove(value)` stops after the first match.
-If the list contains duplicates, some remain, violating the intended behavior.
+If the list contains duplicates, some remain, violating the intended behavior.  
 ### The Buggy Implementation
 ```csharp
 public class ListDeleter
 {
-    // Removes only the first matching element.
+    
     public IList<int> DoingMyThing(IList<int> theList, int iNeedToBeRemoved)
     {
         var result = theList.ToList();
@@ -177,21 +177,25 @@ public class ListDeleter
 ```
 ### The Acid Test
 ```csharp
-return
-	from sut in "ListDeleter".Stashed(() => new ListDeleter())
+	from sut in Script.Stashed(() => new ListDeleter())
 	let listGenerator =
 		from listLength in Fuzz.Int(10, 20)
 		from list in Fuzz.Int(0, 10).Many(listLength).ToList()
 		select list
-	from list in "List".Input(listGenerator)
-	from toRemove in "Element to remove".Input(Fuzz.Int(0, 10))
-	from output in "ListDeleter.DoingMyThing".Act(() => sut.DoingMyThing(list, toRemove))
-	from expected in "Oracle".Derived(() => list.Where(x => x != toRemove).ToList())
-	from spec1 in "Removes all occurrences".Spec(() => !output.Contains(toRemove))
-	from spec2 in "Does not over-delete".Spec(() => output.Count == list.Count(x => x != toRemove))
-	from spec3 in "Preserves order of survivors".Spec(() => output.SequenceEqual(expected))
-	from twice in "Apply twice".Derived(() => new ListDeleter().DoingMyThing(output, toRemove))
-	from specIdem in "Idempotent delete".Spec(() => twice.SequenceEqual(output))
+	from list in Script.Input<DeleteFromList.List>().With(listGenerator)
+	from toRemove in Script.Input<DeleteFromList.ElementToRemove>().With(Fuzz.Int(0, 10))
+	from output in Script.Act<DeleteFromList>().With(() => sut.DoingMyThing(list, toRemove))
+	from expected in Script.Execute(() => list.Where(x => x != toRemove).ToList())
+	from spec1 in Script.Spec<DeleteFromList.RemovesAllOccurences>(
+		() => !output.Contains(toRemove))
+	from spec2 in Script.Spec<DeleteFromList.DoesNotOverDelete>(
+		() => output.Count == list.Count(x => x != toRemove))
+	from spec3 in Script.Spec<DeleteFromList.PreservesOrderOfSurvivors>(
+		() => output.SequenceEqual(expected))
+	from twice in Script.Execute(
+		() => new ListDeleter().DoingMyThing(output, toRemove))
+	from specIdem in Script.Spec<DeleteFromList.IdempotentDelete>(
+		() => twice.SequenceEqual(output))
 	select Acid.Test;
 ```
 ### The Report
@@ -226,7 +230,7 @@ This example models a simple broadcaster that keeps a list of connected clients 
 The subtle bug: `Register` **mutates the list in place** (`clients.Add(client)`)
 while `Broadcast` **enumerates without a lock**.
 If a registration happens during a broadcast, enumeration can throw
-`InvalidOperationException: Collection was modified; enumeration operation may not execute.`
+`InvalidOperationException: Collection was modified; enumeration operation may not execute.`  
 ### The Buggy Bits (an excerpt)
 ```csharp
 // BUG: in-place mutation while others may be enumerating
@@ -299,31 +303,31 @@ public class UnitTests
 ### The **Failing** Acid Test
 ```csharp
 return
-    from factory in "ClientProxyFactory".Stashed(() => new TestClientProxyFactory())
-    from broadcaster in "Broadcaster".Stashed(() => new Broadcaster(factory))
-    from needler in "Needler".Stashed(() => new Needler())
-    from _ in "ops".Choose(
+    from factory in Script.Stashed(() => new TestClientProxyFactory())
+    from broadcaster in Script.Stashed(() => new Broadcaster(factory))
+    from needler in Script.Stashed(() => new Needler())
+    from _ in Script.Choose(
         // 1) Register
-        from _a in "Register Client".Act(broadcaster.Register)
-        from _s in "Client Exists In Collection".Spec(() =>
+        from _a in Script.Act<RegisterClient>(broadcaster.Register)
+        from _s in Script.Spec<RegisterClient.ClientExistsInCollection>(() =>
             GetBroadcastersClients(broadcaster).Contains(factory.CreatedClients.Last()))
         select Acid.Test,
         // 2) Remove on fault
-        from faulty in "Faulty Client".Derived(
+        from faulty in Script.Execute(
             Fuzz.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
-        from _b in "Registered Client Faults".ActIf(() => faulty != null,
+        from _b in Script.ActIf<RegisteredClientFaults>(() => faulty != null,
             () => ((TestClientProxy)faulty!).Fault())
-        from _sb in "Client Is Removed From Collection".Spec(() =>
+        from _sb in Script.Spec<RegisteredClientFaults.ClientIsRemovedFromCollection>(() =>
             !GetBroadcastersClients(broadcaster).Contains(faulty))
         select Acid.Test,
         // 3) Start broadcast in background
-        from _c in "Broadcast".ActIf(() => !needler.ThreadSwitch,
+        from _c in Script.ActIf<Broadcast>(() => !needler.ThreadSwitch,
             () => needler.Start(() => broadcaster.Broadcast(new Notification())))
-        from _sc in "Start Does Not Throw".Spec(() => needler.ExceptionFromThread == null)
+        from _sc in Script.Spec<Broadcast.DoesNotThrow>(() => needler.ExceptionFromThread == null)
         select Acid.Test,
         // 4) Stop broadcast
-        from _d in "Stop Broadcasting".ActIf(() => needler.ThreadSwitch, needler.Stop)
-        from _sd in "Stop Does Not Throw".Spec(() => needler.ExceptionFromThread == null)
+        from _d in Script.ActIf<StopBroadcasting>(() => needler.ThreadSwitch, needler.Stop)
+        from _sd in Script.Spec<StopBroadcasting.DoesNotThrow>(() => needler.ExceptionFromThread == null)
         select Acid.Test)
     select Acid.Test;
 ```

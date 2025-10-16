@@ -1,5 +1,6 @@
 ﻿using QuickFuzzr;
 using QuickPulse.Explains;
+using StringExtensionCombinators;
 
 namespace QuickAcid.Examples.TheBugHouse.Tests;
 
@@ -8,13 +9,13 @@ namespace QuickAcid.Examples.TheBugHouse.Tests;
 [DocContent(
 @"Throws as soon as the value 6 has been seen three times.  
 A straightforward counter-based failure condition.")]
-[DocCodeExample(typeof(BugHouse), nameof(BugHouse.Run))]
+[DocExample(typeof(BugHouse), nameof(BugHouse.Run))]
 public class B_ThirdTimesTheHarm
 {
     public class BugHouse
     {
         private int count;
-        [DocExample]
+        [CodeSnippet]
         public bool Run(int a)
         {
             if (a == 6) count++;

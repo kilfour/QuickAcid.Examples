@@ -1,5 +1,6 @@
 ﻿using QuickFuzzr;
 using QuickPulse.Explains;
+using StringExtensionCombinators;
 
 namespace QuickAcid.Examples.TheBugHouse.Tests;
 
@@ -9,16 +10,16 @@ namespace QuickAcid.Examples.TheBugHouse.Tests;
 "each appending different markers to state. " +
 "Demonstrates multi-method state interaction.  ")]
 [DocContent("**RunInt:**")]
-[DocCodeExample(typeof(BugHouse), nameof(BugHouse.RunInt))]
+[DocExample(typeof(BugHouse), nameof(BugHouse.RunInt))]
 [DocContent("**RunString:**")]
-[DocCodeExample(typeof(BugHouse), nameof(BugHouse.RunString))]
+[DocExample(typeof(BugHouse), nameof(BugHouse.RunString))]
 public class D_MultipleMethods
 {
 	public class BugHouse
 	{
 		private string? bug;
 
-		[DocExample]
+		[CodeSnippet]
 		public bool RunInt(int a)
 		{
 			bug += "1";
@@ -26,7 +27,7 @@ public class D_MultipleMethods
 			return true;
 		}
 
-		[DocExample]
+		[CodeSnippet]
 		public bool RunString(string a)
 		{
 			bug += "2";

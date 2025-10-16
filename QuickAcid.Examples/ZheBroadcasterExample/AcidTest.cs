@@ -49,7 +49,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
     [DocHeader("The **Passing** Unit Tests")]
     [DocCodeFile("UnitTests.cs", "csharp")]
     [DocHeader("The **Failing** Acid Test")]
-    [DocCodeExample(typeof(AcidTest), nameof(TheTest))]
+    [DocExample(typeof(AcidTest), nameof(TheTest))]
     [DocHeader("The Report")]
     [DocCodeFile("Broadcaster.qr")]
     public void AllInOne()
@@ -60,39 +60,59 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
             .And(50.ExecutionsPerRun());
     }
 
-    [DocExample]
+    public record RegisterClient : Act
+    {
+        public record ClientExistsInCollection : Spec;
+    }
+
+    public record RegisteredClientFaults : Act
+    {
+        public record ClientIsRemovedFromCollection : Spec;
+    }
+
+    public record Broadcast : Act
+    {
+        public record DoesNotThrow : Spec;
+    }
+
+    public record StopBroadcasting : Act
+    {
+        public record DoesNotThrow : Spec;
+    }
+
+    [CodeSnippet]
     public QAcidScript<Acid> TheTest()
     {
         return
-            from factory in "ClientProxyFactory".Stashed(() => new TestClientProxyFactory())
-            from broadcaster in "Broadcaster".Stashed(() => new Broadcaster(factory))
-            from needler in "Needler".Stashed(() => new Needler())
+            from factory in Script.Stashed(() => new TestClientProxyFactory())
+            from broadcaster in Script.Stashed(() => new Broadcaster(factory))
+            from needler in Script.Stashed(() => new Needler())
             from _ in Script.Choose(
 
                 // 1) Register
-                from _a in "Register Client".Act(broadcaster.Register)
-                from _s in "Client Exists In Collection".Spec(() =>
+                from _a in Script.Act<RegisterClient>(broadcaster.Register)
+                from _s in Script.Spec<RegisterClient.ClientExistsInCollection>(() =>
                     GetBroadcastersClients(broadcaster).Contains(factory.CreatedClients.Last()))
                 select Acid.Test,
 
                 // 2) Remove on fault
                 from faulty in Script.Execute(
                     Fuzz.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
-                from _b in "Registered Client Faults".ActIf(() => faulty != null,
+                from _b in Script.ActIf<RegisteredClientFaults>(() => faulty != null,
                     () => ((TestClientProxy)faulty!).Fault())
-                from _sb in "Client Is Removed From Collection".Spec(() =>
+                from _sb in Script.Spec<RegisteredClientFaults.ClientIsRemovedFromCollection>(() =>
                     !GetBroadcastersClients(broadcaster).Contains(faulty))
                 select Acid.Test,
 
                 // 3) Start broadcast in background
-                from _c in "Broadcast".ActIf(() => !needler.ThreadSwitch,
+                from _c in Script.ActIf<Broadcast>(() => !needler.ThreadSwitch,
                     () => needler.Start(() => broadcaster.Broadcast(new Notification())))
-                from _sc in "Start Does Not Throw".Spec(() => needler.ExceptionFromThread == null)
+                from _sc in Script.Spec<Broadcast.DoesNotThrow>(() => needler.ExceptionFromThread == null)
                 select Acid.Test,
 
                 // 4) Stop broadcast
-                from _d in "Stop Broadcasting".ActIf(() => needler.ThreadSwitch, needler.Stop)
-                from _sd in "Stop Does Not Throw".Spec(() => needler.ExceptionFromThread == null)
+                from _d in Script.ActIf<StopBroadcasting>(() => needler.ThreadSwitch, needler.Stop)
+                from _sd in Script.Spec<StopBroadcasting.DoesNotThrow>(() => needler.ExceptionFromThread == null)
                 select Acid.Test)
             select Acid.Test;
     }

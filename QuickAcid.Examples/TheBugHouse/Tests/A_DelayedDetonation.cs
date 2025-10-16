@@ -1,5 +1,6 @@
 using QuickFuzzr;
 using QuickPulse.Explains;
+using StringExtensionCombinators;
 
 namespace QuickAcid.Examples.TheBugHouse.Tests;
 
@@ -8,13 +9,13 @@ namespace QuickAcid.Examples.TheBugHouse.Tests;
 [DocContent(
 @"Throws only after exactly three total runs when the input value is 1.  
 Demonstrates a simple stateful failure triggered by run count.")]
-[DocCodeExample(typeof(BugHouse), nameof(BugHouse.Run))]
+[DocExample(typeof(BugHouse), nameof(BugHouse.Run))]
 public class A_DelayedDetonation
 {
     public class BugHouse
     {
         private int count;
-        [DocExample]
+        [CodeSnippet]
         public bool Run(int a)
         {
             return !(count++ == 2 && a == 1);

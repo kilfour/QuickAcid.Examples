@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <!-- <PackageReference Include="QuickAcid" Version="0.0.1" /> -->
-    <PackageReference Include="QuickPulse.Explains" Version="0.2.2" />
+    <PackageReference Include="QuickPulse.Explains" Version="0.2.9" />
   </ItemGroup>
 
   <ItemGroup>

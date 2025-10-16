@@ -1,6 +1,7 @@
 ﻿using QuickAcid;
 using QuickFuzzr;
 using QuickPulse.Explains;
+using StringExtensionCombinators;
 
 namespace QuickAcid.Examples.UsingAnOracle;
 
@@ -15,8 +16,10 @@ If the list contains duplicates, some remain, violating the intended behavior.")
 
 public class DeletingFromAList
 {
+	[CodeExample]
 	public class ListDeleter
 	{
+		// Removes only the first matching element.
 		public IList<int> DoingMyThing(IList<int> theList, int iNeedToBeRemoved)
 		{
 			var result = theList.ToList();
@@ -30,7 +33,7 @@ public class DeletingFromAList
 	[DocCode(
 @"public class ListDeleter
 {
-    // Removes only the first matching element.
+    
     public IList<int> DoingMyThing(IList<int> theList, int iNeedToBeRemoved)
     {
         var result = theList.ToList();
@@ -39,7 +42,7 @@ public class DeletingFromAList
     }
 }")]
 	[DocHeader("The Acid Test")]
-	[DocCodeExample(typeof(DeletingFromAList), nameof(TheTest))]
+	[DocExample(typeof(DeletingFromAList), nameof(TheTest))]
 	[DocHeader("The Report")]
 	[DocCodeFile("DeletingFromAList.qr")]
 	public void LetsAskTheOracle()
@@ -50,24 +53,51 @@ public class DeletingFromAList
 			.And(10.ExecutionsPerRun());
 	}
 
-	[DocExample]
-	public QAcidScript<Acid> TheTest()
+
+	public record DeleteFromList : Act
+	{
+		public record List : Input;
+		public record ElementToRemove : Input;
+		public record RemovesAllOccurences : Spec;
+		public record DoesNotOverDelete : Spec;
+		public record PreservesOrderOfSurvivors : Spec;
+		public record IdempotentDelete : Spec;
+	}
+
+	[CodeSnippet]
+	[CodeRemove("return")]
+	private static QAcidScript<Acid> TheTest()
 	{
 		return
-			from sut in "ListDeleter".Stashed(() => new ListDeleter())
+			from sut in Script.Stashed(() => new ListDeleter())
+
 			let listGenerator =
 				from listLength in Fuzz.Int(10, 20)
 				from list in Fuzz.Int(0, 10).Many(listLength).ToList()
 				select list
-			from list in "List".Input(listGenerator)
-			from toRemove in "Element to remove".Input(Fuzz.Int(0, 10))
-			from output in "ListDeleter.DoingMyThing".Act(() => sut.DoingMyThing(list, toRemove))
+
+			from list in Script.Input<DeleteFromList.List>().With(listGenerator)
+			from toRemove in Script.Input<DeleteFromList.ElementToRemove>().With(Fuzz.Int(0, 10))
+
+			from output in Script.Act<DeleteFromList>().With(() => sut.DoingMyThing(list, toRemove))
+
 			from expected in Script.Execute(() => list.Where(x => x != toRemove).ToList())
-			from spec1 in "Removes all occurrences".Spec(() => !output.Contains(toRemove))
-			from spec2 in "Does not over-delete".Spec(() => output.Count == list.Count(x => x != toRemove))
-			from spec3 in "Preserves order of survivors".Spec(() => output.SequenceEqual(expected))
-			from twice in Script.Execute(() => new ListDeleter().DoingMyThing(output, toRemove))
-			from specIdem in "Idempotent delete".Spec(() => twice.SequenceEqual(output))
+
+			from spec1 in Script.Spec<DeleteFromList.RemovesAllOccurences>(
+				() => !output.Contains(toRemove))
+
+			from spec2 in Script.Spec<DeleteFromList.DoesNotOverDelete>(
+				() => output.Count == list.Count(x => x != toRemove))
+
+			from spec3 in Script.Spec<DeleteFromList.PreservesOrderOfSurvivors>(
+				() => output.SequenceEqual(expected))
+
+			from twice in Script.Execute(
+				() => new ListDeleter().DoingMyThing(output, toRemove))
+
+			from specIdem in Script.Spec<DeleteFromList.IdempotentDelete>(
+				() => twice.SequenceEqual(output))
+
 			select Acid.Test;
 	}
 }
