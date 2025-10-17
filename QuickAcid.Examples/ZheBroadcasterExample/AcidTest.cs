@@ -80,6 +80,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
         public record DoesNotThrow : Spec;
     }
 
+
     [CodeSnippet]
     public QAcidScript<Acid> TheTest()
     {
