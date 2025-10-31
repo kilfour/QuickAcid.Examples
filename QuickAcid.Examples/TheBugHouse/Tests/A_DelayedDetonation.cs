@@ -38,7 +38,7 @@ Run( a = 1 ) // count == 2 && a == 1 → fail
     public void AcidTest()
     {
         var script =
-            from a in "a".Input(Fuzz.Int(0, 10))
+            from a in "a".Input(Fuzzr.Int(0, 10))
             from bughouse in "BugHouse".Stashed(() => new BugHouse())
             from output in "BugHouse.Run".Act(() => bughouse.Run(a))
             from spec in "Delayed Detonation: BugHouse.Run returns true".Spec(() => output)

@@ -55,11 +55,11 @@ RunInt(6)            // bug ends with ""1221"" and `a == 6` → fail
 			from bughouse in "BugHouse".Stashed(() => new BugHouse())
 			from funcOne in
 				Script.Choose(
-					from i in "int".Input(Fuzz.Int(0, 10))
+					from i in "int".Input(Fuzzr.Int(0, 10))
 					from runInt in "BugHouse.RunInt".Act(() => bughouse.RunInt(i))
 					from specOne in "BugHouse.RunInt returns true".Spec(() => runInt)
 					select Acid.Test,
-					from str in "string".Input(Fuzz.String(1, 1))
+					from str in "string".Input(Fuzzr.String(1, 1))
 					from runString in "BugHouse.RunString".Act(() => bughouse.RunString(str))
 					from specTwo in "BugHouse.RunString returns true".Spec(() => runString)
 					select Acid.Test)

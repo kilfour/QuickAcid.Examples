@@ -98,7 +98,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
 
                 // 2) Remove on fault
                 from faulty in Script.Execute(
-                    Fuzz.ChooseFromWithDefaultWhenEmpty(GetBroadcastersClients(broadcaster)))
+                    Fuzzr.OneOf(GetBroadcastersClients(broadcaster)))
                 from _b in Script.ActIf<RegisteredClientFaults>(() => faulty != null,
                     () => ((TestClientProxy)faulty!).Fault())
                 from _sb in Script.Spec<RegisteredClientFaults.ClientIsRemovedFromCollection>(() =>
@@ -118,7 +118,7 @@ private void RemoveClientFromRegisteredClients(IClientProxy client)
             select Acid.Test;
     }
 
-    private static List<IClientProxy> GetBroadcastersClients(Broadcaster caster)
+    private static IEnumerable<IClientProxy> GetBroadcastersClients(Broadcaster caster)
     {
         var clientsFieldInfo =
             typeof(Broadcaster).GetField("clients", BindingFlags.NonPublic | BindingFlags.Instance);

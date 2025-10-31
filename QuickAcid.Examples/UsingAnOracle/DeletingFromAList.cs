@@ -72,14 +72,14 @@ public class DeletingFromAList
 			from sut in Script.Stashed(() => new ListDeleter())
 
 			let listGenerator =
-				from listLength in Fuzz.Int(10, 20)
-				from list in Fuzz.Int(0, 10).Many(listLength).ToList()
+				from listLength in Fuzzr.Int(10, 20)
+				from list in Fuzzr.Int(0, 10).Many(listLength)
 				select list
 
 			from list in Script.Input<DeleteFromList.List>().With(listGenerator)
-			from toRemove in Script.Input<DeleteFromList.ElementToRemove>().With(Fuzz.Int(0, 10))
+			from toRemove in Script.Input<DeleteFromList.ElementToRemove>().With(Fuzzr.Int(0, 10))
 
-			from output in Script.Act<DeleteFromList>().With(() => sut.DoingMyThing(list, toRemove))
+			from output in Script.Act<DeleteFromList>().With(() => sut.DoingMyThing(list.ToList(), toRemove))
 
 			from expected in Script.Execute(() => list.Where(x => x != toRemove).ToList())
 
